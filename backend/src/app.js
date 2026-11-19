@@ -3,7 +3,7 @@
 // connect to an in-memory database themselves.
 import express from "express";
 import cors from "cors";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();

@@ -1,12 +1,8 @@
 import crypto from "node:crypto";
-import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { HttpError } from "../utils/HttpError.js";
-import { requireAuth } from "../middleware/auth.js";
-
-const router = Router();
 
 const BCRYPT_ROUNDS = 12;
 
@@ -28,14 +24,14 @@ function signToken(user) {
   );
 }
 
-router.post("/register", async (req, res) => {
+export async function register(req, res) {
   const { username, email, password } = req.body;
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const user = await User.create({ username, email, passwordHash });
   res.status(201).json({ token: signToken(user), user });
-});
+}
 
-router.post("/login", async (req, res) => {
+export async function login(req, res) {
   const { username, password } = req.body;
   const user = await User.findOne({ username: username.toLowerCase() }).select(
     "+passwordHash",
@@ -50,13 +46,11 @@ router.post("/login", async (req, res) => {
     throw new HttpError(401, "UNAUTHORIZED", "Wrong username or password");
   }
   res.status(200).json({ token: signToken(user), user });
-});
+}
 
-router.get("/me", requireAuth, async (req, res) => {
+export async function me(req, res) {
   const user = await User.findById(req.user.id);
   // The token can outlive its account; treat that like a bad token
   if (!user) throw new HttpError(401, "UNAUTHORIZED", "Please log in");
   res.status(200).json({ user });
-});
-
-export default router;
+}
