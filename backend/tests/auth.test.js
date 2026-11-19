@@ -183,4 +183,20 @@ describe("GET /api/auth/me", () => {
 
     expectUnauthorized(res);
   });
+
+  it("rejects a valid token whose user no longer exists", async () => {
+    const { body } = await request(app)
+      .post("/api/auth/register")
+      .send(alice)
+      .expect(201);
+    // The API has no delete-account route, so wipe the database directly.
+    // The token itself is still validly signed and unexpired.
+    await mongoose.connection.dropDatabase();
+
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${body.token}`);
+
+    expectUnauthorized(res);
+  });
 });

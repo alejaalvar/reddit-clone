@@ -54,6 +54,8 @@ router.post("/login", async (req, res) => {
 
 router.get("/me", requireAuth, async (req, res) => {
   const user = await User.findById(req.user.id);
+  // The token can outlive its account; treat that like a bad token
+  if (!user) throw new HttpError(401, "UNAUTHORIZED", "Please log in");
   res.status(200).json({ user });
 });
 
