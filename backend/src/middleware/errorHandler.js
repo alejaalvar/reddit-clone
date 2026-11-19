@@ -6,7 +6,7 @@ export function errorHandler(err, req, res, next) {
   const send = (status, code, message, fields) =>
     res.status(status).json({ error: { code, message, ...(fields && { fields }) } });
 
-  if (err instanceof HttpError) return send(err.status, err.code, err.message);
+  if (err instanceof HttpError) return send(err.status, err.code, err.message, err.fields);
   if (err.name === "ValidationError")
     return send(
       400,

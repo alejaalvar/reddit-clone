@@ -36,7 +36,22 @@ export async function register(req, res) {
 }
 
 export async function login(req, res) {
-  const { username, password } = req.body;
+  // req.body is undefined when a request has no JSON body
+  const { username, password } = req.body ?? {};
+
+  // Strings only: an object like { "$gt": "" } would turn findOne into a
+  // query that matches any user (NoSQL injection)
+  const fields = {};
+  if (typeof username !== "string" || username === "") {
+    fields.username = "Username is required";
+  }
+  if (typeof password !== "string" || password === "") {
+    fields.password = "Password is required";
+  }
+  if (Object.keys(fields).length > 0) {
+    throw new HttpError(400, "VALIDATION_ERROR", "Some fields are invalid", fields);
+  }
+
   const user = await User.findOne({ username: username.toLowerCase() }).select(
     "+passwordHash",
   );

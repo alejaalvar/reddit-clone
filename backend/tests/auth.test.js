@@ -35,9 +35,15 @@ beforeAll(async () => {
   ({ default: app } = await import("../src/app.js"));
 }, 120_000); // first run downloads a MongoDB binary
 
-afterEach(async () => {
-  await mongoose.connection.dropDatabase();
-});
+// Empty every collection but keep it, with its indexes. dropDatabase() would
+// also delete the unique indexes, which Mongoose builds only once, so later
+// tests would accept duplicate usernames and emails.
+async function clearDatabase() {
+  const collections = await mongoose.connection.db.collections();
+  await Promise.all(collections.map((c) => c.deleteMany({})));
+}
+
+afterEach(clearDatabase);
 
 afterAll(async () => {
   await mongoose.disconnect();
@@ -81,6 +87,32 @@ describe("POST /api/auth/register", () => {
     } finally {
       delete process.env.JWT_EXPIRES_IN; // don't leak into other tests
     }
+  });
+
+  it("rejects a taken username with 409 DUPLICATE, ignoring case", async () => {
+    await request(app).post("/api/auth/register").send(alice).expect(201);
+
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ ...alice, username: "ALICE", email: "other@example.com" });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatchObject({ code: "DUPLICATE" });
+    expect(res.body.error.fields).toHaveProperty("username");
+    expect(res.body).not.toHaveProperty("token");
+  });
+
+  it("rejects a taken email with 409 DUPLICATE", async () => {
+    await request(app).post("/api/auth/register").send(alice).expect(201);
+
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ ...alice, username: "alice2" });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatchObject({ code: "DUPLICATE" });
+    expect(res.body.error.fields).toHaveProperty("email");
+    expect(res.body).not.toHaveProperty("token");
   });
 });
 
@@ -126,6 +158,32 @@ describe("POST /api/auth/login", () => {
     expect(unknownUser.body).not.toHaveProperty("token");
     // Same message either way, so the response doesn't reveal which usernames exist
     expect(unknownUser.body.error.message).toBe(wrongPassword.body.error.message);
+  });
+
+  // Spec: 400 for missing fields. A non-string value counts as invalid too:
+  // express.json() accepts objects, and { "$gt": "" } passed to findOne
+  // would match the first user in the database (NoSQL injection).
+  describe("rejects missing or invalid fields with 400 VALIDATION_ERROR", () => {
+    beforeEach(async () => {
+      // A real user exists, so a 400 can't be a side effect of "user not found"
+      await request(app).post("/api/auth/register").send(alice).expect(201);
+    });
+
+    it.each([
+      ["no username", { password: "correct-horse-battery" }, "username"],
+      ["an empty username", { username: "", password: "correct-horse-battery" }, "username"],
+      ["a username that is an object", { username: { $gt: "" }, password: "correct-horse-battery" }, "username"],
+      ["no password", { username: "alice" }, "password"],
+      ["an empty password", { username: "alice", password: "" }, "password"],
+      ["a password that is an object", { username: "alice", password: { $gt: "" } }, "password"],
+    ])("%s", async (_description, body, badField) => {
+      const res = await request(app).post("/api/auth/login").send(body);
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatchObject({ code: "VALIDATION_ERROR" });
+      expect(res.body.error.fields).toHaveProperty(badField);
+      expect(res.body).not.toHaveProperty("token");
+    });
   });
 });
 
@@ -213,7 +271,7 @@ describe("GET /api/auth/me", () => {
       .expect(201);
     // The API has no delete-account route, so wipe the database directly.
     // The token itself is still validly signed and unexpired.
-    await mongoose.connection.dropDatabase();
+    await clearDatabase();
 
     const res = await request(app)
       .get("/api/auth/me")
