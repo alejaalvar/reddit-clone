@@ -1,8 +1,8 @@
-import crypto from "node:crypto";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import { HttpError } from "../utils/HttpError.js";
+import crypto from 'node:crypto';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import HttpError from '../utils/HttpError.js';
 
 const BCRYPT_ROUNDS = 12;
 
@@ -12,13 +12,13 @@ const BCRYPT_ROUNDS = 12;
 // compare takes the same time.
 // The password is random and never stored, so nobody can log in with it.
 const DUMMY_HASH = await bcrypt.hash(
-  crypto.randomBytes(32).toString("hex"),
+  crypto.randomBytes(32).toString('hex'),
   BCRYPT_ROUNDS,
 );
 
 // The default lives here, not in config/env.js, because the tests import
 // app.js without loading env.js.
-const DEFAULT_JWT_EXPIRES_IN = "7d";
+const DEFAULT_JWT_EXPIRES_IN = '7d';
 
 function signToken(user) {
   return jwt.sign(
@@ -34,14 +34,14 @@ const PASSWORD_MAX_BYTES = 72; // bcrypt ignores anything past 72 bytes
 // Returns an error message, or null if the password is fine. The model can't
 // check this because it only ever sees the hash.
 function checkPassword(password) {
-  if (typeof password !== "string" || password === "") {
-    return "Password is required";
+  if (typeof password !== 'string' || password === '') {
+    return 'Password is required';
   }
   // Count characters as code points, so an emoji counts as one
   if ([...password].length < PASSWORD_MIN_CHARS) {
     return `Password must be at least ${PASSWORD_MIN_CHARS} characters`;
   }
-  if (Buffer.byteLength(password, "utf8") > PASSWORD_MAX_BYTES) {
+  if (Buffer.byteLength(password, 'utf8') > PASSWORD_MAX_BYTES) {
     return `Password must be at most ${PASSWORD_MAX_BYTES} bytes`;
   }
   return null;
@@ -53,7 +53,7 @@ export async function register(req, res) {
 
   const passwordError = checkPassword(password);
   if (passwordError) {
-    throw new HttpError(400, "VALIDATION_ERROR", "Some fields are invalid", {
+    throw new HttpError(400, 'VALIDATION_ERROR', 'Some fields are invalid', {
       password: passwordError,
     });
   }
@@ -70,18 +70,18 @@ export async function login(req, res) {
   // Strings only: an object like { "$gt": "" } would turn findOne into a
   // query that matches any user (NoSQL injection)
   const fields = {};
-  if (typeof username !== "string" || username === "") {
-    fields.username = "Username is required";
+  if (typeof username !== 'string' || username === '') {
+    fields.username = 'Username is required';
   }
-  if (typeof password !== "string" || password === "") {
-    fields.password = "Password is required";
+  if (typeof password !== 'string' || password === '') {
+    fields.password = 'Password is required';
   }
   if (Object.keys(fields).length > 0) {
-    throw new HttpError(400, "VALIDATION_ERROR", "Some fields are invalid", fields);
+    throw new HttpError(400, 'VALIDATION_ERROR', 'Some fields are invalid', fields);
   }
 
   const user = await User.findOne({ username: username.toLowerCase() }).select(
-    "+passwordHash",
+    '+passwordHash',
   );
   // Always run a full bcrypt compare, even for an unknown username
   const passwordMatches = await bcrypt.compare(
@@ -90,7 +90,7 @@ export async function login(req, res) {
   );
   // A matching dummy hash must never count as a login
   if (!user || !passwordMatches) {
-    throw new HttpError(401, "UNAUTHORIZED", "Wrong username or password");
+    throw new HttpError(401, 'UNAUTHORIZED', 'Wrong username or password');
   }
   res.status(200).json({ token: signToken(user), user });
 }
@@ -98,6 +98,6 @@ export async function login(req, res) {
 export async function me(req, res) {
   const user = await User.findById(req.user.id);
   // The token can outlive its account; treat that like a bad token
-  if (!user) throw new HttpError(401, "UNAUTHORIZED", "Please log in");
+  if (!user) throw new HttpError(401, 'UNAUTHORIZED', 'Please log in');
   res.status(200).json({ user });
 }

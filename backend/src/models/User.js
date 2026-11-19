@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
 const userSchema = new Schema(
   {
@@ -26,12 +26,10 @@ const userSchema = new Schema(
 );
 
 // Never send the hash, even if a query selects it
-userSchema.set("toJSON", {
-  transform: (doc, ret) => {
-    delete ret.passwordHash;
-    delete ret.__v;
-    return ret;
-  },
+userSchema.set('toJSON', {
+  // Return a copy without the two fields instead of deleting them from ret
+  // (Airbnb's no-param-reassign)
+  transform: (doc, { passwordHash, __v, ...rest }) => rest,
 });
 
-export default model("User", userSchema);
+export default model('User', userSchema);
