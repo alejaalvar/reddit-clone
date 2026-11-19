@@ -10,6 +10,7 @@
  */
 import mongoose from "mongoose";
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 // ========== helpers ==========
@@ -122,5 +123,64 @@ describe("GET /api/auth/me", () => {
       username: "alice",
       email: "alice@example.com",
     });
+  });
+
+  // Spec: 401 for a missing or expired token, in the standard error shape
+  function expectUnauthorized(res) {
+    expect(res.status).toBe(401);
+    expect(res.body.error).toMatchObject({ code: "UNAUTHORIZED" });
+    expect(res.body).not.toHaveProperty("user");
+  }
+
+  it("rejects a request with no token", async () => {
+    const res = await request(app).get("/api/auth/me");
+
+    expectUnauthorized(res);
+  });
+
+  it("rejects a token that isn't a JWT", async () => {
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", "Bearer not-a-real-token");
+
+    expectUnauthorized(res);
+  });
+
+  it("rejects a token signed with a different secret", async () => {
+    const { body } = await request(app)
+      .post("/api/auth/register")
+      .send(alice)
+      .expect(201);
+    const forged = jwt.sign(
+      { sub: body.user._id, username: "alice" },
+      "attacker-guessed-secret",
+    );
+
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${forged}`);
+
+    expectUnauthorized(res);
+  });
+
+  it("rejects an expired token", async () => {
+    const { body } = await request(app)
+      .post("/api/auth/register")
+      .send(alice)
+      .expect(201);
+    const expired = jwt.sign(
+      {
+        sub: body.user._id,
+        username: "alice",
+        exp: Math.floor(Date.now() / 1000) - 60, // expired a minute ago
+      },
+      process.env.JWT_SECRET,
+    );
+
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${expired}`);
+
+    expectUnauthorized(res);
   });
 });
