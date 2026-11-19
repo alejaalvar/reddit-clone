@@ -16,11 +16,15 @@ const DUMMY_HASH = await bcrypt.hash(
   BCRYPT_ROUNDS,
 );
 
+// The default lives here, not in config/env.js, because the tests import
+// app.js without loading env.js.
+const DEFAULT_JWT_EXPIRES_IN = "7d";
+
 function signToken(user) {
   return jwt.sign(
     { sub: user._id.toString(), username: user.username },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" },
+    { expiresIn: process.env.JWT_EXPIRES_IN || DEFAULT_JWT_EXPIRES_IN },
   );
 }
 

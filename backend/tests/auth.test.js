@@ -60,6 +60,28 @@ describe("POST /api/auth/register", () => {
     expect(res.body.user).not.toHaveProperty("password");
     expect(res.body.user).not.toHaveProperty("passwordHash");
   });
+
+  it("returns a token for that user that expires in 7 days by default", async () => {
+    const res = await request(app).post("/api/auth/register").send(alice);
+
+    // Spec, Auth flow step 3: { sub, username }, signed with JWT_SECRET,
+    // expiresIn JWT_EXPIRES_IN, which defaults to '7d'
+    const payload = jwt.verify(res.body.token, process.env.JWT_SECRET);
+    expect(payload).toMatchObject({ sub: res.body.user._id, username: "alice" });
+    expect(payload.exp - payload.iat).toBe(7 * 24 * 60 * 60);
+  });
+
+  it("uses JWT_EXPIRES_IN for the token lifetime when it's set", async () => {
+    process.env.JWT_EXPIRES_IN = "1h";
+    try {
+      const res = await request(app).post("/api/auth/register").send(alice);
+
+      const payload = jwt.verify(res.body.token, process.env.JWT_SECRET);
+      expect(payload.exp - payload.iat).toBe(60 * 60);
+    } finally {
+      delete process.env.JWT_EXPIRES_IN; // don't leak into other tests
+    }
+  });
 });
 
 describe("POST /api/auth/login", () => {

@@ -1,5 +1,5 @@
 // Builds and exports the Express app. It must not connect to Mongo or
-// listen on a port: src/index.js does that for real runs, and the tests
+// listen on a port: src/server.js does that for real runs, and the tests
 // connect to an in-memory database themselves.
 import express from "express";
 import cors from "cors";
