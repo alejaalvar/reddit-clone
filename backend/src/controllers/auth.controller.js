@@ -28,8 +28,36 @@ function signToken(user) {
   );
 }
 
+const PASSWORD_MIN_CHARS = 8;
+const PASSWORD_MAX_BYTES = 72; // bcrypt ignores anything past 72 bytes
+
+// Returns an error message, or null if the password is fine. The model can't
+// check this because it only ever sees the hash.
+function checkPassword(password) {
+  if (typeof password !== "string" || password === "") {
+    return "Password is required";
+  }
+  // Count characters as code points, so an emoji counts as one
+  if ([...password].length < PASSWORD_MIN_CHARS) {
+    return `Password must be at least ${PASSWORD_MIN_CHARS} characters`;
+  }
+  if (Buffer.byteLength(password, "utf8") > PASSWORD_MAX_BYTES) {
+    return `Password must be at most ${PASSWORD_MAX_BYTES} bytes`;
+  }
+  return null;
+}
+
 export async function register(req, res) {
-  const { username, email, password } = req.body;
+  // req.body is undefined when a request has no JSON body
+  const { username, email, password } = req.body ?? {};
+
+  const passwordError = checkPassword(password);
+  if (passwordError) {
+    throw new HttpError(400, "VALIDATION_ERROR", "Some fields are invalid", {
+      password: passwordError,
+    });
+  }
+
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const user = await User.create({ username, email, passwordHash });
   res.status(201).json({ token: signToken(user), user });

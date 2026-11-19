@@ -114,6 +114,37 @@ describe("POST /api/auth/register", () => {
     expect(res.body.error.fields).toHaveProperty("email");
     expect(res.body).not.toHaveProperty("token");
   });
+
+  // Spec: the password must be at least 8 characters and at most 72 bytes,
+  // since bcrypt ignores anything past 72 bytes.
+  it.each([
+    ["no password", undefined],
+    ["a password that is an object", { $gt: "" }],
+    ["a 7-character password", "abcdefg"],
+    ["a 73-byte password", "a".repeat(73)],
+    // 19 characters, so a character count would accept it, but 76 bytes
+    ["a password of 19 emoji (76 bytes)", "🔑".repeat(19)],
+  ])("rejects %s with 400 VALIDATION_ERROR", async (_description, password) => {
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ ...alice, password });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatchObject({ code: "VALIDATION_ERROR" });
+    expect(res.body.error.fields).toHaveProperty("password");
+    expect(res.body).not.toHaveProperty("token");
+  });
+
+  it.each([
+    ["exactly 8 characters", "abcdefgh"],
+    ["exactly 72 bytes", "a".repeat(72)],
+  ])("accepts a password of %s", async (_description, password) => {
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ ...alice, password });
+
+    expect(res.status).toBe(201);
+  });
 });
 
 describe("POST /api/auth/login", () => {
