@@ -8,9 +8,10 @@
  * .env file inside of backend/ with the appropriate username,
  * password, and MONGODB_URI values.
  */
+/* eslint-disable no-console -- a command-line script; printing is its job */
 
-import "dotenv/config";
-import mongoose from "mongoose";
+import 'dotenv/config';
+import mongoose from 'mongoose';
 
 try {
   await mongoose.connect(process.env.MONGODB_URI, {
@@ -18,13 +19,13 @@ try {
   });
   const cols = await mongoose.connection.db.listCollections().toArray();
   console.log(
-    "Connected to",
+    'Connected to',
     mongoose.connection.name,
-    "→",
+    '→',
     cols.map((c) => c.name),
   );
 } catch (err) {
-  console.error("Connection failed:", err.message);
+  console.error('Connection failed:', err.message);
 } finally {
   await mongoose.disconnect();
 }
