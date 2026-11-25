@@ -2,15 +2,18 @@ import Community from '../models/Community.js';
 import HttpError from '../utils/HttpError.js';
 
 export async function listCommunities(req, res) {
+  // Bad, zero or missing values fall back to the defaults; limit is capped
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
   const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
 
+  // Offset paging (skip reads and drops earlier rows; fine at this size).
+  // limit + 1 tells us if there's a next page without a second query.
   const docs = await Community.find()
     .sort({ name: 1 })
     .skip((page - 1) * limit)
     .limit(limit + 1)
     .populate('creator', 'username')
-    .lean();
+    .lean(); // plain objects; we only read these
 
   res.json({
     communities: docs.slice(0, limit),
@@ -44,8 +47,9 @@ export async function createCommunity(req, res) {
 }
 
 export async function getCommunity(req, res) {
-  const community = await Community
-    .findOne({ name: req.params.name.toLowerCase() })
+  const community = await Community.findOne({
+    name: req.params.name.toLowerCase(),
+  })
     .populate('creator', 'username')
     .lean();
   if (!community) throw new HttpError(404, 'NOT_FOUND', 'Community not found');

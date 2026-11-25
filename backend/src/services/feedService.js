@@ -8,7 +8,10 @@ const SORTS = {
 };
 
 export default async function getFeed({
-  community, sort = 'new', page = 1, limit = 25,
+  community,
+  sort = 'new',
+  page = 1,
+  limit = 25,
 }) {
   if (!Object.hasOwn(SORTS, sort)) {
     throw new HttpError(400, 'VALIDATION_ERROR', 'sort must be new or top');
@@ -18,9 +21,10 @@ export default async function getFeed({
 
   const filter = {};
   if (community) {
-    const found = await Community
-      .findOne({ name: String(community).toLowerCase() }, '_id')
-      .lean();
+    const found = await Community.findOne(
+      { name: String(community).toLowerCase() },
+      '_id',
+    ).lean();
     if (!found) throw new HttpError(404, 'NOT_FOUND', 'Community not found');
     filter.community = found._id;
   }
@@ -31,7 +35,7 @@ export default async function getFeed({
     .limit(pageSize + 1) // one extra tells us whether there is a next page
     .populate('author', 'username')
     .populate('community', 'name')
-    .lean();
+    .lean(); // Plain objects
 
   const hasMore = docs.length > pageSize;
   // TODO(voting PR): look up the logged-in user's votes and set myVote per post.
