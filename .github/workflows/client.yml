@@ -1,4 +1,4 @@
-# Lints and builds client/ on every pull request and on pushes to main.
+# Lints, tests and builds client/ on every pull request and on pushes to main.
 name: Client
 
 on:
@@ -21,4 +21,5 @@ jobs:
           cache-dependency-path: client/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npm test -- --run
       - run: npm run build
