@@ -1,10 +1,33 @@
+/**
+ * @file Creates and exports SignupPage, the page at /register
+ * @module client/src/pages/SignupPage.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
+import { Link } from 'react-router';
+import AuthCard from '../components/AuthCard.jsx';
+import SignupForm from '../components/SignupForm.jsx';
+
+/**
+ * The sign up form in an AuthCard, with a link to log in instead.
+ *
+ * Register returns a token, so a successful sign up logs the person in
+ * and GuestOnly (which wraps this route) sends them on, the same way
+ * as after logging in. That's why there is no navigate() here.
+ */
 export default function SignupPage() {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold">/register route</h1>
-      <button type="button" className="btn btn-primary mt-4">
-        On Signup Page
-      </button>
-    </div>
+    <AuthCard
+      title="Sign up"
+      footer={(
+        <>
+          Already have an account?
+          {' '}
+          <Link to="/login" className="link link-primary">Log in</Link>
+        </>
+      )}
+    >
+      <SignupForm />
+    </AuthCard>
   );
 }
