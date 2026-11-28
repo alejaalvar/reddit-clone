@@ -1,4 +1,9 @@
+// file: App.jsx
+
 import { Routes, Route } from 'react-router';
+import LoginPage from './pages/LoginPage.jsx';
+import SignupPage from './pages/SignupPage.jsx';
+import GuestOnly from './components/GuestOnly.jsx';
 
 function Home() {
   return (
@@ -15,6 +20,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route element={<GuestOnly />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<SignupPage />} />
+      </Route>
     </Routes>
   );
 }
