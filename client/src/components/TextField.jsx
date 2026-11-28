@@ -1,3 +1,9 @@
+/**
+ * @file Creates and exports TextField, the labelled input used by every form
+ * @module client/src/components/TextField.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import { useId } from 'react';
 
 /**

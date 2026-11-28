@@ -1,4 +1,10 @@
 /**
+ * @file Creates and exports FormError, the banner for errors that belong to no field
+ * @module client/src/components/FormError.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
+/**
  * The banner at the top of a form for errors that belong to no single
  * field, such as "Wrong username or password". message is useForm's
  * formError; with no message nothing is rendered.

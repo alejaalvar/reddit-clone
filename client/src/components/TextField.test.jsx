@@ -1,3 +1,9 @@
+/**
+ * @file Tests the TextField component
+ * @module client/src/components/TextField.test.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import {
   describe, it, expect, vi,
 } from 'vitest';

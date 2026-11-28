@@ -1,3 +1,9 @@
+/**
+ * @file Tests the SignupForm component
+ * @module client/src/components/SignupForm.test.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import {
   describe, it, expect, vi, beforeEach,
 } from 'vitest';

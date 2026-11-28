@@ -1,3 +1,9 @@
+/**
+ * @file Tests AuthProvider and the useAuth hook
+ * @module client/src/hooks/useAuth.test.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';

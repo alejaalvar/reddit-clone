@@ -1,3 +1,9 @@
+/**
+ * @file Entry point: mounts App inside the query, auth and router providers
+ * @module client/src/main.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';

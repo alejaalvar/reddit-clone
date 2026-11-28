@@ -1,3 +1,9 @@
+/**
+ * @file Creates and exports useForm, the state and submit handling shared by every form
+ * @module client/src/hooks/useForm.js
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 // file: useForm.js
 
 import { useState } from 'react';

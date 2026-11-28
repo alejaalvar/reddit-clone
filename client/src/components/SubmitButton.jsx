@@ -1,4 +1,10 @@
 /**
+ * @file Creates and exports SubmitButton, a submit button with a loading state
+ * @module client/src/components/SubmitButton.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
+/**
  * The submit button for every form. While isSubmitting (from useForm)
  * is true it shows daisyUI's spinner and is disabled, so a double
  * click can't send the same login or sign up twice.

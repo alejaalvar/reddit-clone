@@ -1,3 +1,9 @@
+/**
+ * @file Creates and exports a test helper that renders inside the app's providers
+ * @module client/src/test/renderWithProviders.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

@@ -1,3 +1,9 @@
+/**
+ * @file Creates and exports LoginForm, the username and password form
+ * @module client/src/components/LoginForm.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 // file: LoginForm.jsx
 
 import { useAuth } from '../hooks/useAuth.jsx';

@@ -1,3 +1,9 @@
+/**
+ * @file Creates and exports PasswordField, a TextField with a show/hide toggle
+ * @module client/src/components/PasswordField.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import { useState } from 'react';
 import TextField from './TextField.jsx';
 

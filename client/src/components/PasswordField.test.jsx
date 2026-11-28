@@ -1,3 +1,9 @@
+/**
+ * @file Tests the PasswordField component
+ * @module client/src/components/PasswordField.test.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import {
   describe, it, expect, vi,
 } from 'vitest';

@@ -1,4 +1,8 @@
-// file: App.jsx
+/**
+ * @file Creates and exports App, the route table for the whole client
+ * @module client/src/App.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
 
 import { Routes, Route } from 'react-router';
 import AppLayout from './components/AppLayout.jsx';

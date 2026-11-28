@@ -1,3 +1,9 @@
+/**
+ * @file Tests the LoginForm component
+ * @module client/src/components/LoginForm.test.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import {
   describe, it, expect, vi, beforeEach,
 } from 'vitest';

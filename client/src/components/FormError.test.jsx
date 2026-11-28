@@ -1,3 +1,9 @@
+/**
+ * @file Tests the FormError component
+ * @module client/src/components/FormError.test.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FormError from './FormError.jsx';

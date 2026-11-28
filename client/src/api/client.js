@@ -1,8 +1,16 @@
+/**
+ * @file Creates and exports a shared Axios instance with configured middleware
+ * @module client/src/api/client.js
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import axios from 'axios';
 
 const TOKEN_KEY = 'token';
 
 /**
+ * Maps object method to a localStorage read/write operations
+ *
  * The one place that reads and writes the JWT. The spec keeps it in
  * localStorage so a login survives a reload.
  */

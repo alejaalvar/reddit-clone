@@ -1,3 +1,9 @@
+/**
+ * @file Creates and exports AuthProvider and useAuth, which share who is logged in
+ * @module client/src/hooks/useAuth.jsx
+ * @author Alejandro Alvarado <alejalva@pdx.edu>
+ */
+
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
