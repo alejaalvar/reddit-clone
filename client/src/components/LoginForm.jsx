@@ -16,8 +16,8 @@ function validate({ username, password }) {
 }
 
 /**
- * Username and password, sent to useAuth().login. On success it calls
- * onSuccess(user) and the page decides where to go next. A wrong
+ * Username and password, sent to useAuth().login. On success GuestOnly
+ * moves the person on; onSuccess(user) is an optional extra hook. A wrong
  * username or password comes back from the API as a 401, which useForm
  * shows in the FormError banner.
  *
@@ -32,7 +32,8 @@ export default function LoginForm({ onSuccess }) {
     initialValues: { username: '', password: '' },
     validate,
     onSubmit: async ({ username, password }) => {
-      onSuccess(await login(username, password));
+      const user = await login(username, password);
+      onSuccess?.(user);
     },
   });
 

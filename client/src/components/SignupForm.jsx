@@ -46,7 +46,8 @@ function validate({
 /**
  * Username, email, password and a confirmation, sent to
  * useAuth().register. Register answers with a token, so success means
- * the person is already logged in; onSuccess(user) lets the page move on.
+ * the person is already logged in and GuestOnly moves them on;
+ * onSuccess(user) is an optional extra hook.
  *
  * The confirmation is checked here only; the API doesn't take it.
  * A taken username or email comes back as a 409, which useForm shows
@@ -62,7 +63,8 @@ export default function SignupForm({ onSuccess }) {
     },
     validate,
     onSubmit: async ({ username, email, password }) => {
-      onSuccess(await register(username, email, password));
+      const user = await register(username, email, password);
+      onSuccess?.(user);
     },
   });
 

@@ -125,4 +125,14 @@ describe('SignupForm', () => {
     expect(screen.getByLabelText('Username')).toHaveAccessibleDescription('already taken');
     expect(onSuccess).not.toHaveBeenCalled();
   });
+
+  it('signs up cleanly without an onSuccess handler, since GuestOnly does the redirect', async () => {
+    authApi.register.mockResolvedValue({ token: 'new.jwt.token', user: max });
+    renderWithProviders(<SignupForm />);
+
+    await fillAndSubmit(valid);
+
+    expect(authApi.register).toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });

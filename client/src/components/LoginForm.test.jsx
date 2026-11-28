@@ -64,4 +64,14 @@ describe('LoginForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Wrong username or password');
     expect(onSuccess).not.toHaveBeenCalled();
   });
+
+  it('logs in cleanly without an onSuccess handler, since GuestOnly does the redirect', async () => {
+    authApi.login.mockResolvedValue({ token: 'new.jwt.token', user: max });
+    renderWithProviders(<LoginForm />);
+
+    await fillAndSubmit('max', 'hunter22!');
+
+    expect(authApi.login).toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });
